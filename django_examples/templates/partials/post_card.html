@@ -1,0 +1,71 @@
+{% comment %}
+  ПРИКЛАД однієї картки допису (Етап 5).
+  Використання:  {% for post in posts %}{% include "partials/post_card.html" %}{% endfor %}
+  На сторінці допису: {% include "partials/post_card.html" with detail=True %}
+
+  Порівняй з будь-якою <article class="post"> у templates/feed.html макета —
+  розмітка та сама, тільки замість тексту стоять {{ змінні }}.
+
+  ⚠️ АНОНІМНІСТЬ: якщо post.is_anonymous, НІДЕ не виводимо post.author —
+  ні ім'я, ні клас, ні посилання на профіль. Навіть у прихованих атрибутах!
+{% endcomment %}
+<article class="post {% if detail %}post--detail{% endif %}">
+  {% if post.is_pinned and not detail %}
+  <div class="post__pinned"><svg class="ic"><use href="#i-pin"/></svg> Закріплено модераторами</div>
+  {% endif %}
+
+  <div class="post__side">
+    {% if post.is_anonymous %}
+      <div class="avatar avatar--anon" title="Анонім"><svg><use href="#i-mask"/></svg></div>
+    {% else %}
+      <a href="#"><div class="avatar" style="--av: {{ post.author.profile.color }}">{{ post.author.profile.initials }}</div></a>
+    {% endif %}
+    {% if post.replies.exists and not detail %}<div class="post__thread"></div>{% endif %}
+  </div>
+
+  <div class="post__body">
+    <header class="post__head">
+      {% if post.is_anonymous %}
+        <span class="post__name">Анонім</span>
+        <span class="post__meta">учень ліцею · {{ post.created_at|timesince }} тому</span>
+      {% else %}
+        <a class="post__name" href="#">{{ post.author.first_name }}</a>
+        <span class="post__meta">{{ post.author.profile.school_class }} · {{ post.created_at|timesince }} тому</span>
+      {% endif %}
+
+      <details class="dropdown post__more">
+        <summary class="icon-btn" aria-label="Більше"><svg class="ic"><use href="#i-more"/></svg></summary>
+        <div class="menu">
+          <button type="button" data-share><svg class="ic"><use href="#i-link"/></svg> Скопіювати посилання</button>
+          {% if post.author != user %}
+          <a href="#" class="is-danger"><svg class="ic"><use href="#i-flag"/></svg> Поскаржитися</a>
+          {% endif %}
+        </div>
+      </details>
+    </header>
+
+    <div class="post__tags">
+      <a class="tag" style="--tag: {{ post.tag.color }}" href="{% url 'feed' %}?topic={{ post.tag.name }}">#{{ post.tag.name }}</a>
+    </div>
+
+    {% if detail %}
+      <p class="post__text">{{ post.text }}</p>
+    {% else %}
+      <a class="post__link" href="{% url 'post_detail' post.pk %}"><p class="post__text">{{ post.text }}</p></a>
+    {% endif %}
+
+    <footer class="post__actions">
+      {# Лайк — маленька POST-форма. Після натискання сторінка перезавантажиться #}
+      <form method="post" action="{% url 'post_like' post.pk %}">
+        {% csrf_token %}
+        <button class="act act--like {% if user in post.likes.all %}is-on{% endif %}" aria-label="Вподобати">
+          <svg class="ic"><use href="#i-heart"/></svg><span>{{ post.likes.count }}</span>
+        </button>
+      </form>
+      <a class="act" href="{% url 'post_detail' post.pk %}#reply" aria-label="Коментувати">
+        <svg class="ic"><use href="#i-comment"/></svg><span>{{ post.replies.count|default:"" }}</span>
+      </a>
+      <button type="button" class="act" data-share aria-label="Надіслати"><svg class="ic"><use href="#i-share"/></svg></button>
+    </footer>
+  </div>
+</article>

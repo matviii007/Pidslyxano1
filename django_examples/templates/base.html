@@ -1,0 +1,87 @@
+{% load static %}
+<!doctype html>
+<html lang="uk">
+{% comment %}
+  ПРИКЛАД base.html — спільний каркас для всіх сторінок (Етап 3).
+  Зроблено з будь-якої сторінки макета: взято все, що позначено "BASE.HTML",
+  а унікальну частину замінено на блок content.
+  Інші сторінки починаються з extends "base.html".
+  ⚠️ Коментарі з Django-тегами пиши ось так (comment ... endcomment) або {# ... #},
+  а НЕ через <!-- -->: усередині <!-- --> Django все одно виконує теги.
+{% endcomment %}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Стрічка{% endblock %} · Підслухано у Ліцеї 8</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('pl8-theme'); } catch (e) {}
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+  {% include "partials/icons.html" %}
+
+  {# Назва поточного маршруту, щоб підсвітити активний пункт меню #}
+  {% with current=request.resolver_match.url_name %}
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="{% url 'feed' %}"><svg class="logo-mark"><use href="#i-logo"/></svg><span class="brand__text"><b>Підслухано</b><small>у Ліцеї 8</small></span></a>
+      <nav class="nav">
+        <a class="nav__item {% if current == 'feed' %}is-active{% endif %}" href="{% url 'feed' %}"><svg class="ic"><use href="#i-home"/></svg><span>Стрічка</span></a>
+        {# Коли зробиш ці сторінки, заміни "#" на {% url 'search' %} і т.д. #}
+        <a class="nav__item" href="#"><svg class="ic"><use href="#i-search"/></svg><span>Пошук</span></a>
+        <a class="nav__item" href="#"><svg class="ic"><use href="#i-bell"/></svg><span>Сповіщення</span></a>
+        <a class="nav__item" href="#"><svg class="ic"><use href="#i-user"/></svg><span>Профіль</span></a>
+        <a class="nav__item {% if current == 'rules' %}is-active{% endif %}" href="{% url 'rules' %}"><svg class="ic"><use href="#i-book"/></svg><span>Правила</span></a>
+      </nav>
+      <a class="btn btn--big" href="{% url 'post_create' %}"><svg class="ic"><use href="#i-plus"/></svg><span>Новий допис</span></a>
+      <div class="sidebar__bottom">
+        <button type="button" class="nav__item" data-theme-toggle><svg class="ic only-light"><use href="#i-moon"/></svg><svg class="ic only-dark"><use href="#i-sun"/></svg><span>Змінити тему</span></button>
+        {% if user.is_authenticated %}
+        <div class="me-card">
+          <div class="avatar avatar--sm" style="--av: {{ user.profile.color }}">{{ user.profile.initials }}</div>
+          <div class="me-card__main"><b>{{ user.first_name }}</b><small>@{{ user.username }}</small></div>
+          {# У Django 5 вихід працює лише через POST #}
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="icon-btn" title="Вийти"><svg class="ic"><use href="#i-logout"/></svg></button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </aside>
+
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <aside class="aside">
+      {# Права колонка: скопіюй сюди <aside class="aside"> з будь-якої сторінки макета #}
+    </aside>
+  </div>
+
+  <nav class="tabbar">
+    <a href="{% url 'feed' %}" {% if current == 'feed' %}class="is-active"{% endif %}><svg class="ic"><use href="#i-home"/></svg></a>
+    <a href="#"><svg class="ic"><use href="#i-search"/></svg></a>
+    <a href="{% url 'post_create' %}" class="tabbar__plus"><svg class="ic"><use href="#i-plus"/></svg></a>
+    <a href="#"><svg class="ic"><use href="#i-bell"/></svg></a>
+    <a href="#"><svg class="ic"><use href="#i-user"/></svg></a>
+  </nav>
+  {% endwith %}
+
+  {# Повідомлення з messages.success(...) у view. main.js покаже їх як toast #}
+  <div class="toast {% if messages %}is-on{% endif %}" id="toast" role="status" aria-live="polite">
+    {% for message in messages %}✓ {{ message }}{% endfor %}
+  </div>
+
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

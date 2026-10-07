@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="uk">
+<!--
+  ШАБЛОН:   templates/post_form.html
+  URL:      /post/new/
+  VIEW:     post_create(request)
+  ДАНІ З VIEW (context): form (PostForm), tags
+  Після збереження: redirect("feed")
+-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Новий допис · Підслухано у Ліцеї 8</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <!-- У Django: [% load static %] на початку файлу і href="[% static 'css/style.css' %]" -->
+  <link rel="stylesheet" href="../static/css/style.css">
+  <!-- Тема (світла/темна) вмикається до показу сторінки, щоб не було "блимання" -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('pl8-theme'); } catch (e) {}
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+  <!-- ═══════════ BASE.HTML: ПОЧАТОК ═══════════
+       Усе від цього місця до коментаря "BLOCK CONTENT" однакове на всіх сторінках.
+       У Django це переїде у templates/base.html. -->
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.3A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.6c0 5.7-7.5 10.3-7.5 10.3z"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6.5 2.5 8 2.5 8h-17S6 15.5 6 9"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-comment" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/></symbol>
+    <symbol id="i-repost" viewBox="0 0 24 24"><path d="m17 2.5 3.5 3.5L17 9.5"/><path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5"/><path d="M7 21.5 3.5 18 7 14.5"/><path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 15 21.5l-4.5-8-8-4.5z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21.5V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+    <symbol id="i-poll" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M2.5 9.2c3.2-1.6 6.3-1.6 9.5 0 3.2-1.6 6.3-1.6 9.5 0v2.3c0 4-2.8 6-5.2 6-2.1 0-3.1-2-4.3-2s-2.2 2-4.3 2c-2.4 0-5.2-2-5.2-6zM5.6 11.6a2 1.3 0 1 0 4 0a2 1.3 0 1 0-4 0zM14.4 11.6a2 1.3 0 1 0 4 0a2 1.3 0 1 0-4 0z" fill-rule="evenodd"/></symbol>
+    <symbol id="i-logo" viewBox="0 0 40 40"><path d="M20 3C10.6 3 3 9.9 3 18.4c0 4.7 2.3 8.9 6 11.7L7.6 37l7.3-4.2c1.6.4 3.3.6 5.1.6 9.4 0 17-6.9 17-15S29.4 3 20 3z" style="fill: var(--accent)"/><text x="20" y="25.5" text-anchor="middle" style="fill: #fff; font: 800 15px Unbounded, sans-serif">8</text></symbol>
+  </svg>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="feed.html"><svg class="logo-mark"><use href="#i-logo"/></svg><span class="brand__text"><b>Підслухано</b><small>у Ліцеї 8</small></span></a>
+      <nav class="nav">
+      <a class="nav__item is-active" href="feed.html"><svg class="ic"><use href="#i-home"/></svg><span>Стрічка</span></a>
+      <a class="nav__item" href="search.html"><svg class="ic"><use href="#i-search"/></svg><span>Пошук</span></a>
+      <a class="nav__item" href="notifications.html"><svg class="ic"><use href="#i-bell"/></svg><span>Сповіщення</span><span class="nav__badge">3</span></a>
+      <a class="nav__item" href="profile.html"><svg class="ic"><use href="#i-user"/></svg><span>Профіль</span></a>
+      <a class="nav__item" href="rules.html"><svg class="ic"><use href="#i-book"/></svg><span>Правила</span></a>
+      </nav>
+      <a class="btn btn--big" href="post_form.html"><svg class="ic"><use href="#i-plus"/></svg><span>Новий допис</span></a>
+      <div class="sidebar__bottom">
+        <button type="button" class="nav__item" data-theme-toggle><svg class="ic only-light"><use href="#i-moon"/></svg><svg class="ic only-dark"><use href="#i-sun"/></svg><span>Змінити тему</span></button>
+        <!-- У Django: [[ request.user.first_name ]] і т.д. -->
+        <div class="me-card">
+          <div class="avatar avatar--sm" style="--av: #ff7a59">ОК</div>
+          <div class="me-card__main"><b>Олена Коваль</b><small>@olena_k</small></div>
+          <a class="icon-btn" href="login.html" title="Вийти"><svg class="ic"><use href="#i-logout"/></svg></a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- ═══════════ [% block content %] ═══════════
+           Ось ця частина — унікальна для сторінки "post_form.html". -->
+
+      <div class="topbar">
+        <div class="topbar__row">
+          <a class="icon-btn" href="feed.html" data-back aria-label="Назад"><svg class="ic"><use href="#i-back"/></svg></a>
+          <h1 class="topbar__title">Новий допис</h1>
+          <button type="button" class="icon-btn topbar__theme" data-theme-toggle aria-label="Змінити тему"><svg class="ic only-light"><use href="#i-moon"/></svg><svg class="ic only-dark"><use href="#i-sun"/></svg></button>
+        </div>
+      </div>
+
+      <!-- У Django: method="post" + [% csrf_token %]. Поля мають ті самі name, що й у моделі Post -->
+      <form class="page-form" action="feed.html" method="get">
+        <input type="hidden" name="msg" value="moderation">
+        <div class="compose__row">
+          <div class="avatar avatar--anon" title="Анонім"><svg><use href="#i-mask"/></svg></div>
+          <div class="compose__main">
+            <b data-compose-name>Анонім</b>
+            <textarea name="text" maxlength="500" rows="6" placeholder="Що почув(-ла) сьогодні в ліцеї?" required data-counter></textarea>
+            <div class="compose__count"><span data-count>0</span>/500</div>
+          </div>
+        </div>
+
+        <div class="compose__label">Тема</div>
+        <!-- Радіокнопки виглядають як чіпи. У Django: [% for tag in tags %] ... [% endfor %] -->
+        <div class="chips chips--wrap">
+          <label class="chip chip--radio" style="--tag: #e8457c"><input type="radio" name="tag" value="кохання">#кохання</label>
+          <label class="chip chip--radio" style="--tag: #2f8f5b"><input type="radio" name="tag" value="вчителі">#вчителі</label>
+          <label class="chip chip--radio" style="--tag: #e08a00"><input type="radio" name="tag" value="їдальня">#їдальня</label>
+          <label class="chip chip--radio" style="--tag: #3a6fe0"><input type="radio" name="tag" value="загублене">#загублене</label>
+          <label class="chip chip--radio" style="--tag: #8a4fd8"><input type="radio" name="tag" value="подяка">#подяка</label>
+          <label class="chip chip--radio" style="--tag: #0e9aa7"><input type="radio" name="tag" value="події">#події</label>
+          <label class="chip chip--radio" style="--tag: #5c6bc0"><input type="radio" name="tag" value="олімпіади">#олімпіади</label>
+          <label class="chip chip--radio" style="--tag: #6b7f99"><input type="radio" name="tag" value="питання" checked>#питання</label>
+          <label class="chip chip--radio" style="--tag: #d1a000"><input type="radio" name="tag" value="смішне">#смішне</label>
+        </div>
+
+        <!-- Опитування необов'язкове: <details> розкривається без JavaScript -->
+        <details class="poll-editor">
+          <summary><svg class="ic"><use href="#i-poll"/></svg> Додати опитування</summary>
+          <input type="text" name="option1" maxlength="40" placeholder="Варіант 1">
+          <input type="text" name="option2" maxlength="40" placeholder="Варіант 2">
+          <input type="text" name="option3" maxlength="40" placeholder="Варіант 3 (необов'язково)">
+        </details>
+
+        <label class="switch">
+          <input type="checkbox" name="is_anonymous" checked data-anon-toggle>
+          <span class="switch__track"></span>
+          <span class="switch__text"><b>Опублікувати анонімно</b><small>Ім’я бачитимуть лише модератори. Допис з’явиться після перевірки.</small></span>
+        </label>
+
+        <button class="btn btn--block" type="submit">Опублікувати</button>
+      </form>
+
+      <!-- ═══════════ [% endblock %] ═══════════ -->
+    </main>
+
+    <aside class="aside">
+      <div class="card">
+        <h3 class="card__title">Найближчі події</h3>
+        <div class="event"><div class="event__date"><b>14</b><small>жов</small></div><div><b>День захисників і захисниць</b><small>Вихідний</small></div></div>
+        <div class="event"><div class="event__date"><b>17</b><small>жов</small></div><div><b>Олімпіада з математики</b><small>Каб. 301, 8:30</small></div></div>
+        <div class="event"><div class="event__date"><b>24</b><small>жов</small></div><div><b>Осінній бал 🍂</b><small>Актова зала, 17:00</small></div></div>
+      </div>
+      <div class="card">
+        <h3 class="card__title">Гарячі теми</h3>
+        <div class="aside-tags"><a class="tag" style="--tag: #e8457c" href="feed.html?topic=кохання">#кохання</a><a class="tag" style="--tag: #e08a00" href="feed.html?topic=їдальня">#їдальня</a><a class="tag" style="--tag: #0e9aa7" href="feed.html?topic=події">#події</a><a class="tag" style="--tag: #d1a000" href="feed.html?topic=смішне">#смішне</a></div>
+      </div>
+      <div class="card card--accent">
+        <h3 class="card__title"><svg class="ic"><use href="#i-shield"/></svg> Анонімно, але чесно</h3>
+        <p>Кожен анонімний допис перевіряють модератори. Без образ, без справжніх імен у зізнаннях.</p>
+        <a class="link-btn" href="rules.html">Читати правила →</a>
+      </div>
+      <p class="aside__foot">Шкільний проєкт · Ліцей №8 · 2026</p>
+    </aside>
+  </div>
+
+  <nav class="tabbar">
+    <a href="feed.html" class="is-active" aria-label="Стрічка"><svg class="ic"><use href="#i-home"/></svg></a>
+    <a href="search.html" aria-label="Пошук"><svg class="ic"><use href="#i-search"/></svg></a>
+    <a href="post_form.html" class="tabbar__plus" aria-label="Новий допис"><svg class="ic"><use href="#i-plus"/></svg></a>
+    <a href="notifications.html" aria-label="Сповіщення"><svg class="ic"><use href="#i-bell"/></svg><span class="nav__badge">3</span></a>
+    <a href="profile.html" aria-label="Профіль"><svg class="ic"><use href="#i-user"/></svg></a>
+  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- У Django: <script src="[% static 'js/main.js' %]"></script> -->
+  <script src="../static/js/main.js"></script>
+  <!-- ═══════════ BASE.HTML: КІНЕЦЬ ═══════════ -->
+</body>
+</html>

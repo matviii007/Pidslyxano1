@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% comment %}
+  ПРИКЛАД стрічки (Етап 5). Порівняй з templates/feed.html макета:
+  12 карток замінено одним циклом, а вкладки й теми підсвічуються через {% if %}.
+{% endcomment %}
+
+{% block title %}Стрічка{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div class="topbar__row">
+    <a class="topbar__logo" href="{% url 'feed' %}"><svg class="logo-mark"><use href="#i-logo"/></svg></a>
+    <h1 class="topbar__title">Стрічка</h1>
+  </div>
+
+  <nav class="tabs">
+    <a class="tabs__btn {% if active_tab == 'all' %}is-active{% endif %}" href="?tab=all">Для вас</a>
+    <a class="tabs__btn {% if active_tab == 'anon' %}is-active{% endif %}" href="?tab=anon">Анонімні</a>
+    <a class="tabs__btn {% if active_tab == 'following' %}is-active{% endif %}" href="?tab=following">Підписки</a>
+  </nav>
+
+  <div class="chips">
+    <a class="chip chip--all {% if not active_topic %}is-active{% endif %}" href="?tab={{ active_tab }}">Усі теми</a>
+    {% for tag in tags %}
+      <a class="chip {% if active_topic == tag.name %}is-active{% endif %}" style="--tag: {{ tag.color }}"
+         href="?tab={{ active_tab }}&topic={{ tag.name }}">#{{ tag.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<a class="composer-inline" href="{% url 'post_create' %}">
+  <div class="avatar" style="--av: {{ user.profile.color }}">{{ user.profile.initials }}</div>
+  <span class="composer-inline__ph">Що почув(-ла) сьогодні в ліцеї?</span>
+  <span class="btn btn--sm">Написати</span>
+</a>
+
+<div class="feed">
+  {% for post in posts %}
+    {% include "partials/post_card.html" %}
+  {% empty %}
+    <div class="empty">
+      <div class="empty__emoji">🤫</div>
+      <h3>Поки тиша</h3>
+      <p>У цій темі ще ніхто нічого не підслухав. Стань першим!</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
